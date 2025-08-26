@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RVO2 小球避障演示</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .description {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .canvas-container {
+            position: relative;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        #gameCanvas {
+            background: #1a1a2e;
+            border: 2px solid #16213e;
+            display: block;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        input[type="range"] {
+            width: 120px;
+        }
+        
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 5px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        
+        .instructions ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 RVO2 小球避障演示</h1>
+        <div class="description">
+            基于最优互惠碰撞避免算法的多智能体路径规划演示
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="agentCount">智能体数量</label>
+                <input type="range" id="agentCount" min="5" max="50" value="15">
+                <input type="number" id="agentCountValue" min="5" max="50" value="15">
+            </div>
+            
+            <div class="control-group">
+                <label for="obstacleCount">障碍物数量</label>
+                <input type="range" id="obstacleCount" min="0" max="10" value="3">
+                <input type="number" id="obstacleCountValue" min="0" max="10" value="3">
+            </div>
+            
+            <div class="control-group">
+                <label for="simulationSpeed">仿真速度</label>
+                <input type="range" id="simulationSpeed" min="1" max="10" value="5">
+                <input type="number" id="simulationSpeed" min="1" max="10" value="5">
+            </div>
+            
+            <div class="control-group">
+                <button id="resetBtn">重置仿真</button>
+                <button id="pauseBtn">暂停/继续</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <strong>智能体数量:</strong> <span id="currentAgentCount">15</span>
+            </div>
+            <div class="stat-item">
+                <strong>障碍物数量:</strong> <span id="currentObstacleCount">3</span>
+            </div>
+            <div class="stat-item">
+                <strong>仿真时间:</strong> <span id="simulationTime">0.0</span>s
+            </div>
+            <div class="stat-item">
+                <strong>FPS:</strong> <span id="fps">0</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🎮 操作说明</h3>
+            <ul>
+                <li><strong>鼠标点击:</strong> 在画布上点击可以添加新的智能体</li>
+                <li><strong>智能体数量:</strong> 调整滑块可以改变智能体的数量</li>
+                <li><strong>障碍物数量:</strong> 调整滑块可以改变障碍物的数量</li>
+                <li><strong>仿真速度:</strong> 调整滑块可以改变仿真的速度</li>
+                <li><strong>重置按钮:</strong> 重新开始仿真</li>
+                <li><strong>暂停按钮:</strong> 暂停或继续仿真</li>
+            </ul>
+            <p><strong>算法说明:</strong> RVO2算法让每个智能体承担一半的避障责任，通过线性规划计算最优速度，实现平滑的碰撞避免路径。</p>
+        </div>
+    </div>
+    
+    <script type="module" src="dist/demo.js"></script>
+</body>
+</html>
