@@ -1,1 +1,0 @@
-{"version":3,"file":"Line.d.ts","sourceRoot":"","sources":["../Line.ts"],"names":[],"mappings":"AAiCA,OAAO,EAAE,OAAO,EAAE,MAAM,WAAW,CAAC;AAEpC;;GAEG;AACH,qBAAa,IAAI;IACN,SAAS,EAAE,OAAO,CAAC;IACnB,KAAK,EAAE,OAAO,CAAC;gBAEV,SAAS,CAAC,EAAE,OAAO,EAAE,KAAK,CAAC,EAAE,OAAO;CAInD"}

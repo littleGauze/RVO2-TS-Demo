@@ -2,7 +2,8 @@
   "name": "rvo2-typescript",
   "version": "1.0.0",
   "description": "RVO2 Library TypeScript - Optimal Reciprocal Collision Avoidance",
-  "main": "index.js",
+  "main": "dist/src/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
