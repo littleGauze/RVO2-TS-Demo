@@ -15,9 +15,41 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             text-align: center;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        
+        .simulation-section {
+            flex: 1;
+        }
+        
+        .control-section {
+            width: 350px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            text-align: left;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .control-section h3 {
+            margin: 20px 0 15px 0;
+            color: #4CAF50;
+            border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+            padding-bottom: 5px;
+        }
+        
+        .control-section h3:first-child {
+            margin-top: 0;
         }
         
         h1 {
@@ -55,25 +87,35 @@
         .control-group {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 20px;
         }
         
         label {
             font-size: 14px;
             font-weight: bold;
+            color: #e0e0e0;
+            margin-bottom: 5px;
         }
         
         input[type="range"] {
-            width: 120px;
+            width: 100%;
         }
         
         input[type="number"] {
-            width: 60px;
+            width: 80px;
             padding: 5px;
             border: none;
             border-radius: 5px;
             text-align: center;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
         }
         
         button {
@@ -85,6 +127,8 @@
             cursor: pointer;
             font-size: 16px;
             transition: background 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
         }
         
         button:hover {
@@ -97,17 +141,20 @@
         
         .stats {
             display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 20px 0;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
             font-size: 14px;
         }
         
         .stat-item {
             background: rgba(255,255,255,0.1);
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 5px;
             backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .instructions {
@@ -141,62 +188,124 @@
             基于最优互惠碰撞避免算法的多智能体路径规划演示
         </div>
         
-        <div class="canvas-container">
-            <canvas id="gameCanvas" width="800" height="600"></canvas>
-        </div>
-        
-        <div class="controls">
+        <div class="main-content">
+            <div class="simulation-section">
+                <div class="canvas-container">
+                    <canvas id="gameCanvas" width="800" height="600"></canvas>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>🎛️ 控制面板</h3>
+                
+                <div class="control-group">
+                    <label for="agentCount">智能体数量</label>
+                    <input type="range" id="agentCount" min="5" max="50" value="15">
+                    <input type="number" id="agentCountValue" min="5" max="50" value="15">
+                </div>
+                
+                <div class="control-group">
+                    <label for="obstacleCount">障碍物数量</label>
+                    <input type="range" id="obstacleCount" min="0" max="10" value="3">
+                    <input type="number" id="obstacleCountValue" min="0" max="10" value="3">
+                </div>
+                
+                <div class="control-group">
+                    <label for="simulationSpeed">仿真速度</label>
+                    <input type="range" id="simulationSpeed" min="1" max="10" value="5">
+                    <input type="number" id="simulationSpeedValue" min="1" max="10" value="5">
+                </div>
+                
+                <div class="control-group">
+                    <label for="neighborDist">邻居检测距离</label>
+                    <input type="range" id="neighborDist" min="10" max="100" value="30">
+                    <input type="number" id="neighborDistValue" min="10" max="100" value="30">
+                </div>
+                
+                <div class="control-group">
+                    <label for="maxSpeed">最大速度</label>
+                    <input type="range" id="maxSpeed" min="10" max="200" value="50">
+                    <input type="number" id="maxSpeedValue" min="10" max="200" value="50">
+                </div>
+                
+                            <div class="control-group">
+                <label for="radius">智能体半径</label>
+                <input type="range" id="radius" min="3" max="20" value="8">
+                <input type="number" id="radiusValue" min="3" max="20" value="8">
+            </div>
+            
+            <h4>🚧 障碍物避障优化</h4>
             <div class="control-group">
-                <label for="agentCount">智能体数量</label>
-                <input type="range" id="agentCount" min="5" max="500" value="15">
-                <input type="number" id="agentCountValue" min="5" max="50" value="15">
+                <label for="timeHorizonObst">障碍物时间视野</label>
+                <input type="range" id="timeHorizonObst" min="1" max="20" value="10">
+                <input type="number" id="timeHorizonObstValue" min="1" max="20" value="10">
             </div>
             
             <div class="control-group">
-                <label for="obstacleCount">障碍物数量</label>
-                <input type="range" id="obstacleCount" min="0" max="10" value="3">
-                <input type="number" id="obstacleCountValue" min="0" max="10" value="3">
+                <label for="timeHorizon">智能体时间视野</label>
+                <input type="range" id="timeHorizon" min="1" max="20" value="10">
+                <input type="number" id="timeHorizonValue" min="1" max="20" value="10">
             </div>
-            
-            <div class="control-group">
-                <label for="simulationSpeed">仿真速度</label>
-                <input type="range" id="simulationSpeed" min="1" max="10" value="5">
-                <input type="number" id="simulationSpeed" min="1" max="10" value="5">
-            </div>
-            
-            <div class="control-group">
-                <button id="resetBtn">重置仿真</button>
-                <button id="pauseBtn">暂停/继续</button>
-            </div>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-item">
-                <strong>智能体数量:</strong> <span id="currentAgentCount">15</span>
-            </div>
-            <div class="stat-item">
-                <strong>障碍物数量:</strong> <span id="currentObstacleCount">3</span>
-            </div>
-            <div class="stat-item">
-                <strong>仿真时间:</strong> <span id="simulationTime">0.0</span>s
-            </div>
-            <div class="stat-item">
-                <strong>FPS:</strong> <span id="fps">0</span>
-            </div>
-        </div>
-        
-        <div class="instructions">
-            <h3>🎮 操作说明</h3>
-            <ul>
-                <li><strong>鼠标点击:</strong> 在画布上点击可以添加新的智能体</li>
-                <li><strong>智能体数量:</strong> 调整滑块可以改变智能体的数量</li>
-                <li><strong>障碍物数量:</strong> 调整滑块可以改变障碍物的数量</li>
-                <li><strong>仿真速度:</strong> 调整滑块可以改变仿真的速度</li>
+                
+                <div class="control-group">
+                    <button id="resetBtn">重置仿真</button>
+                    <button id="pauseBtn">暂停/继续</button>
+                </div>
+                
+                <h3>📊 实时统计</h3>
+                <div class="stats">
+                    <div class="stat-item">
+                        <strong>智能体数量:</strong> <span id="currentAgentCount">15</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>障碍物数量:</strong> <span id="currentObstacleCount">3</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>仿真时间:</strong> <span id="simulationTime">0.0</span>s
+                    </div>
+                    <div class="stat-item">
+                        <strong>FPS:</strong> <span id="fps">0</span>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <strong>邻居检测距离:</strong> <span id="currentNeighborDist">30.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>最大速度:</strong> <span id="currentMaxSpeed">50.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>智能体半径:</strong> <span id="currentRadius">8.0</span>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <strong>障碍物时间视野:</strong> <span id="currentTimeHorizonObst">10.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>智能体时间视野:</strong> <span id="currentTimeHorizon">10.0</span>
+                    </div>
+                </div>
+                
+                <h3>🎮 操作说明</h3>
+                <ul>
+                    <li><strong>鼠标点击:</strong> 在画布上点击可以添加新的智能体</li>
+                    <li><strong>智能体数量:</strong> 调整滑块可以改变智能体的数量</li>
+                    <li><strong>障碍物数量:</strong> 调整滑块可以改变障碍物的数量</li>
+                    <li><strong>仿真速度:</strong> 调整滑块可以改变仿真的速度</li>
+                    <li><strong>邻居检测距离:</strong> 控制智能体检测其他智能体的范围，影响避障行为</li>
+                    <li><strong>最大速度:</strong> 控制智能体的最大移动速度，影响路径规划效率</li>
+                                    <li><strong>智能体半径:</strong> 控制智能体的碰撞半径，影响避障距离</li>
+                <li><strong>障碍物时间视野:</strong> 控制智能体预测障碍物碰撞的时间范围，增大可避免卡住</li>
+                <li><strong>智能体时间视野:</strong> 控制智能体预测其他智能体碰撞的时间范围</li>
                 <li><strong>重置按钮:</strong> 重新开始仿真</li>
                 <li><strong>暂停按钮:</strong> 暂停或继续仿真</li>
-            </ul>
-            <p><strong>算法说明:</strong> RVO2算法让每个智能体承担一半的避障责任，通过线性规划计算最优速度，实现平滑的碰撞避免路径。</p>
-        </div>
+                </ul>
+                <p><strong>算法说明:</strong> RVO2算法让每个智能体承担一半的避障责任，通过线性规划计算最优速度，实现平滑的碰撞避免路径。调整参数可以观察不同设置下的避障效果。</p>
+            </div>
+                </div>
     </div>
     
     <script type="module" src="dist/src/demo.js"></script>

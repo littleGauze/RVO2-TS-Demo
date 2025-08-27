@@ -17,6 +17,14 @@ class RVO2Demo {
         this.agentCount = 15;
         this.obstacleCount = 3;
         this.simulationSpeed = 5;
+        // RVO2算法参数
+        this.neighborDist = 30.0;
+        this.maxSpeed = 50.0;
+        this.radius = 8.0;
+        // RVO2算法固定参数
+        this.maxNeighbors = 10;
+        this.timeHorizon = 10.0;
+        this.timeHorizonObst = 10.0;
         // 目标点
         this.targets = [];
         // 预定义的内部障碍物位置（固定位置）
@@ -42,12 +50,12 @@ class RVO2Demo {
     }
     init() {
         // 设置RVO2仿真器参数
-        this.simulator.setAgentDefaults(30.0, // neighborDist - 邻居检测距离
-        10, // maxNeighbors - 最大邻居数量
-        10.0, // timeHorizon - 时间视野
-        10.0, // timeHorizonObst - 障碍物时间视野
-        8.0, // radius - 智能体半径
-        50.0, // maxSpeed - 最大速度
+        this.simulator.setAgentDefaults(this.neighborDist, // neighborDist - 邻居检测距离
+        this.maxNeighbors, // maxNeighbors - 最大邻居数量
+        this.timeHorizon, // timeHorizon - 时间视野
+        this.timeHorizonObst, // timeHorizonObst - 障碍物时间视野
+        this.radius, // radius - 智能体半径
+        this.maxSpeed, // maxSpeed - 最大速度
         new Vector2(0, 0) // 初始速度
         );
         this.simulator.setTimeStep(0.1);
@@ -60,12 +68,12 @@ class RVO2Demo {
         this.simulator.clear();
         this.targets = [];
         // 重新设置默认参数（因为clear()会清空defaultAgent）
-        this.simulator.setAgentDefaults(30.0, // neighborDist - 邻居检测距离
-        10, // maxNeighbors - 最大邻居数量
-        10.0, // timeHorizon - 时间视野
-        10.0, // timeHorizonObst - 障碍物时间视野
-        8.0, // radius - 智能体半径
-        50.0, // maxSpeed - 最大速度
+        this.simulator.setAgentDefaults(this.neighborDist, // neighborDist - 邻居检测距离
+        this.maxNeighbors, // maxNeighbors - 最大邻居数量
+        this.timeHorizon, // timeHorizon - 时间视野
+        this.timeHorizonObst, // timeHorizonObst - 障碍物时间视野
+        this.radius, // radius - 智能体半径
+        this.maxSpeed, // maxSpeed - 最大速度
         new Vector2(0, 0) // 初始速度
         );
         // 创建智能体
@@ -76,12 +84,12 @@ class RVO2Demo {
             // 检查智能体是否成功创建
             if (agentNo >= 0) {
                 // 设置智能体参数
-                this.simulator.setAgentRadius(agentNo, 8.0);
-                this.simulator.setAgentMaxSpeed(agentNo, 50.0);
-                this.simulator.setAgentNeighborDist(agentNo, 30.0);
-                this.simulator.setAgentMaxNeighbors(agentNo, 10);
-                this.simulator.setAgentTimeHorizon(agentNo, 10.0);
-                this.simulator.setAgentTimeHorizonObst(agentNo, 10.0);
+                this.simulator.setAgentRadius(agentNo, this.radius);
+                this.simulator.setAgentMaxSpeed(agentNo, this.maxSpeed);
+                this.simulator.setAgentNeighborDist(agentNo, this.neighborDist);
+                this.simulator.setAgentMaxNeighbors(agentNo, this.maxNeighbors);
+                this.simulator.setAgentTimeHorizon(agentNo, this.timeHorizon);
+                this.simulator.setAgentTimeHorizonObst(agentNo, this.timeHorizonObst);
             }
             else {
                 console.error(`智能体 ${i} 创建失败`);
@@ -194,20 +202,105 @@ class RVO2Demo {
     setupEventListeners() {
         // 智能体数量滑块
         const agentSlider = document.getElementById('agentCount');
+        const agentValueInput = document.getElementById('agentCountValue');
         agentSlider.addEventListener('input', (e) => {
             this.agentCount = parseInt(e.target.value);
+            agentValueInput.value = this.agentCount.toString();
+            this.createAgents();
+        });
+        agentValueInput.addEventListener('input', (e) => {
+            this.agentCount = parseInt(e.target.value);
+            agentSlider.value = this.agentCount.toString();
             this.createAgents();
         });
         // 障碍物数量滑块
         const obstacleSlider = document.getElementById('obstacleCount');
+        const obstacleValueInput = document.getElementById('obstacleCountValue');
         obstacleSlider.addEventListener('input', (e) => {
             this.obstacleCount = parseInt(e.target.value);
+            obstacleValueInput.value = this.obstacleCount.toString();
+            this.createObstacles();
+        });
+        obstacleValueInput.addEventListener('input', (e) => {
+            this.obstacleCount = parseInt(e.target.value);
+            obstacleSlider.value = this.obstacleCount.toString();
             this.createObstacles();
         });
         // 仿真速度滑块
         const speedSlider = document.getElementById('simulationSpeed');
+        const speedValueInput = document.getElementById('simulationSpeedValue');
         speedSlider.addEventListener('input', (e) => {
             this.simulationSpeed = parseInt(e.target.value);
+            speedValueInput.value = this.simulationSpeed.toString();
+        });
+        speedValueInput.addEventListener('input', (e) => {
+            this.simulationSpeed = parseInt(e.target.value);
+            speedSlider.value = this.simulationSpeed.toString();
+        });
+        // 邻居检测距离滑块
+        const neighborDistSlider = document.getElementById('neighborDist');
+        const neighborDistValueInput = document.getElementById('neighborDistValue');
+        neighborDistSlider.addEventListener('input', (e) => {
+            this.neighborDist = parseFloat(e.target.value);
+            neighborDistValueInput.value = this.neighborDist.toString();
+            this.updateAllAgentsParameters();
+        });
+        neighborDistValueInput.addEventListener('input', (e) => {
+            this.neighborDist = parseFloat(e.target.value);
+            neighborDistSlider.value = this.neighborDist.toString();
+            this.updateAllAgentsParameters();
+        });
+        // 最大速度滑块
+        const maxSpeedSlider = document.getElementById('maxSpeed');
+        const maxSpeedValueInput = document.getElementById('maxSpeedValue');
+        maxSpeedSlider.addEventListener('input', (e) => {
+            this.maxSpeed = parseFloat(e.target.value);
+            maxSpeedValueInput.value = this.maxSpeed.toString();
+            this.updateAllAgentsParameters();
+        });
+        maxSpeedValueInput.addEventListener('input', (e) => {
+            this.maxSpeed = parseFloat(e.target.value);
+            maxSpeedSlider.value = this.maxSpeed.toString();
+            this.updateAllAgentsParameters();
+        });
+        // 智能体半径滑块
+        const radiusSlider = document.getElementById('radius');
+        const radiusValueInput = document.getElementById('radiusValue');
+        radiusSlider.addEventListener('input', (e) => {
+            this.radius = parseFloat(e.target.value);
+            radiusValueInput.value = this.radius.toString();
+            this.updateAllAgentsParameters();
+        });
+        radiusValueInput.addEventListener('input', (e) => {
+            this.radius = parseFloat(e.target.value);
+            radiusSlider.value = this.radius.toString();
+            this.updateAllAgentsParameters();
+        });
+        // 障碍物时间视野滑块
+        const timeHorizonObstSlider = document.getElementById('timeHorizonObst');
+        const timeHorizonObstValueInput = document.getElementById('timeHorizonObstValue');
+        timeHorizonObstSlider.addEventListener('input', (e) => {
+            this.timeHorizonObst = parseFloat(e.target.value);
+            timeHorizonObstValueInput.value = this.timeHorizonObst.toString();
+            this.updateAllAgentsParameters();
+        });
+        timeHorizonObstValueInput.addEventListener('input', (e) => {
+            this.timeHorizonObst = parseFloat(e.target.value);
+            timeHorizonObstSlider.value = this.timeHorizonObst.toString();
+            this.updateAllAgentsParameters();
+        });
+        // 智能体时间视野滑块
+        const timeHorizonSlider = document.getElementById('timeHorizon');
+        const timeHorizonValueInput = document.getElementById('timeHorizonValue');
+        timeHorizonSlider.addEventListener('input', (e) => {
+            this.timeHorizon = parseFloat(e.target.value);
+            timeHorizonValueInput.value = this.timeHorizon.toString();
+            this.updateAllAgentsParameters();
+        });
+        timeHorizonValueInput.addEventListener('input', (e) => {
+            this.timeHorizon = parseFloat(e.target.value);
+            timeHorizonSlider.value = this.timeHorizon.toString();
+            this.updateAllAgentsParameters();
         });
         // 重置按钮
         const resetBtn = document.getElementById('resetBtn');
@@ -250,18 +343,18 @@ class RVO2Demo {
     addAgentAt(x, y) {
         // 确保默认参数已设置
         if (this.simulator.getNumAgents() === 0) {
-            this.simulator.setAgentDefaults(30.0, 10, 10.0, 10.0, 8.0, 50.0, new Vector2(0, 0));
+            this.simulator.setAgentDefaults(this.neighborDist, this.maxNeighbors, this.timeHorizon, this.timeHorizonObst, this.radius, this.maxSpeed, new Vector2(0, 0));
         }
         const agentNo = this.simulator.addAgent(new Vector2(x, y));
         // 检查智能体是否成功创建
         if (agentNo >= 0) {
             // 设置智能体参数
-            this.simulator.setAgentRadius(agentNo, 8.0);
-            this.simulator.setAgentMaxSpeed(agentNo, 50.0);
-            this.simulator.setAgentNeighborDist(agentNo, 30.0);
-            this.simulator.setAgentMaxNeighbors(agentNo, 10);
-            this.simulator.setAgentTimeHorizon(agentNo, 10.0);
-            this.simulator.setAgentTimeHorizonObst(agentNo, 10.0);
+            this.simulator.setAgentRadius(agentNo, this.radius);
+            this.simulator.setAgentMaxSpeed(agentNo, this.maxSpeed);
+            this.simulator.setAgentNeighborDist(agentNo, this.neighborDist);
+            this.simulator.setAgentMaxNeighbors(agentNo, this.maxNeighbors);
+            this.simulator.setAgentTimeHorizon(agentNo, this.timeHorizon);
+            this.simulator.setAgentTimeHorizonObst(agentNo, this.timeHorizonObst);
             // 创建随机目标点 - 使用统一的可用位置选择器
             const targetPos = this.getRandomFreePosition();
             this.targets.push(targetPos);
@@ -405,6 +498,12 @@ class RVO2Demo {
                 this.ctx.lineTo(velocityEnd.x(), velocityEnd.y());
                 this.ctx.stroke();
             }
+            // 绘制邻居检测范围（半透明圆圈）
+            this.ctx.strokeStyle = 'rgba(0, 150, 255, 0.3)';
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
+            this.ctx.arc(agent.position.x(), agent.position.y(), this.neighborDist, 0, Math.PI * 2);
+            this.ctx.stroke();
             // 绘制ID - 增强可见性
             this.ctx.font = 'bold 12px Arial';
             this.ctx.textAlign = 'center';
@@ -422,6 +521,10 @@ class RVO2Demo {
             this.ctx.shadowBlur = 0;
             this.ctx.shadowOffsetX = 0;
             this.ctx.shadowOffsetY = 0;
+            // 绘制参数信息提示（当鼠标悬停时显示）
+            if (this.isMouseOverAgent(agent.position.x(), agent.position.y())) {
+                this.drawAgentInfo(agent, i);
+            }
         }
     }
     drawTargets() {
@@ -458,6 +561,22 @@ class RVO2Demo {
             simulationTimeEl.textContent = this.simulationTime.toFixed(1);
         if (fpsEl)
             fpsEl.textContent = this.fps.toFixed(0);
+        // 更新RVO2参数显示
+        const currentNeighborDistEl = document.getElementById('currentNeighborDist');
+        const currentMaxSpeedEl = document.getElementById('currentMaxSpeed');
+        const currentRadiusEl = document.getElementById('currentRadius');
+        const currentTimeHorizonObstEl = document.getElementById('currentTimeHorizonObst');
+        const currentTimeHorizonEl = document.getElementById('currentTimeHorizon');
+        if (currentNeighborDistEl)
+            currentNeighborDistEl.textContent = this.neighborDist.toFixed(1);
+        if (currentMaxSpeedEl)
+            currentMaxSpeedEl.textContent = this.maxSpeed.toFixed(1);
+        if (currentRadiusEl)
+            currentRadiusEl.textContent = this.radius.toFixed(1);
+        if (currentTimeHorizonObstEl)
+            currentTimeHorizonObstEl.textContent = this.timeHorizonObst.toFixed(1);
+        if (currentTimeHorizonEl)
+            currentTimeHorizonEl.textContent = this.timeHorizon.toFixed(1);
         // 更新FPS
         this.frameCount++;
         const currentTime = performance.now();
@@ -466,6 +585,31 @@ class RVO2Demo {
             this.frameCount = 0;
             this.lastFpsTime = currentTime;
         }
+    }
+    /**
+     * 更新所有现有智能体的RVO2参数
+     */
+    updateAllAgentsParameters() {
+        for (let i = 0; i < this.simulator.getNumAgents(); ++i) {
+            this.simulator.setAgentRadius(i, this.radius);
+            this.simulator.setAgentMaxSpeed(i, this.maxSpeed);
+            this.simulator.setAgentNeighborDist(i, this.neighborDist);
+            this.simulator.setAgentTimeHorizon(i, this.timeHorizon);
+            this.simulator.setAgentTimeHorizonObst(i, this.timeHorizonObst);
+        }
+    }
+    /**
+     * 检查鼠标是否悬停在智能体上
+     */
+    isMouseOverAgent(x, y) {
+        // 简化版本：暂时返回false，避免复杂的鼠标检测逻辑
+        return false;
+    }
+    /**
+     * 绘制智能体信息提示
+     */
+    drawAgentInfo(agent, index) {
+        // 简化版本：暂时不实现，避免复杂的UI绘制逻辑
     }
     resetSimulation() {
         this.simulationTime = 0;
